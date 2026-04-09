@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp
+  labels:
+    app: myapp
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      containers:
+        - name: myapp
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.targetPort }}
+              protocol: TCP
+
+          env:
+            - name: HTTP_PORT
+              value: {{ .Values.env.HTTP_PORT | quote }}
+
+            - name: LOG_LEVEL
+              value: {{ .Values.env.LOG_LEVEL | quote }}
+            - name: SHUTDOWN_TIMEOUT
+              value: {{ .Values.env.SHUTDOWN_TIMEOUT | quote }}
+
+            - name: DATABASE_URL
+              value: {{ .Values.env.DATABASE_URL | quote }}
+            - name: DB_TIMEOUT
+              value: {{ .Values.env.DB_TIMEOUT | quote }}
+            - name: DB_MAX_CONNS
+              value: {{ .Values.env.DB_MAX_CONNS | quote }}
+            - name: DB_MAX_IDLE
+              value: {{ .Values.env.DB_MAX_IDLE | quote }}
+
+            - name: REDIS_ADDR
+              value: {{ .Values.env.REDIS_ADDR | quote }}
+            - name: REDIS_PASSWORD
+              value: {{ .Values.env.REDIS_PASSWORD | quote }}
+            - name: REDIS_DB
+              value: {{ .Values.env.REDIS_DB | quote }}
+            - name: REDIS_TIMEOUT
+              value: {{ .Values.env.REDIS_TIMEOUT | quote }}
+
+            - name: CACHE_TTL
+              value: {{ .Values.env.CACHE_TTL | quote }}
+
+            - name: STARTUP_RETRIES
+              value: {{ .Values.env.STARTUP_RETRIES | quote }}
+            - name: STARTUP_RETRY_GAP
+              value: {{ .Values.env.STARTUP_RETRY_GAP | quote }}
+
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.probes.liveness.path }}
+              port: http
+            initialDelaySeconds: {{ .Values.probes.liveness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.probes.liveness.periodSeconds }}
+            timeoutSeconds: {{ .Values.probes.liveness.timeoutSeconds }}
+            failureThreshold: {{ .Values.probes.liveness.failureThreshold }}
+
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.probes.readiness.path }}
+              port: http
+            initialDelaySeconds: {{ .Values.probes.readiness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.probes.readiness.periodSeconds }}
+            timeoutSeconds: {{ .Values.probes.readiness.timeoutSeconds }}
+            failureThreshold: {{ .Values.probes.readiness.failureThreshold }}
+
+          startupProbe:
+            httpGet:
+              path: {{ .Values.probes.startup.path }}
+              port: http
+            periodSeconds: {{ .Values.probes.startup.periodSeconds }}
+            timeoutSeconds: {{ .Values.probes.startup.timeoutSeconds }}
+            failureThreshold: {{ .Values.probes.startup.failureThreshold }}
+
+          resources:
+{{ toYaml .Values.resources | indent 12 }}

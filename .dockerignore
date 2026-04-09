@@ -1,0 +1,26 @@
+.git
+.gitignore
+README.md
+*.md
+**/*_test.go
+
+# Environment and local overrides
+.env
+.env.*
+!.env.example
+
+# Build/test artifacts
+bin/
+dist/
+coverage.out
+*.out
+*.log
+
+# IDE/OS files
+.DS_Store
+.idea/
+.vscode/
+
+# Local deployment/dev files not needed in image build context
+.helm/
+docker-compose.yml

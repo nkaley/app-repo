@@ -1,0 +1,33 @@
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Go build artifacts
+bin/
+dist/
+*.exe
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+coverage.out
+
+# Go workspace/cache files
+go.work
+go.work.sum
+
+# Editor/OS noise
+.DS_Store
+.idea/
+.vscode/
+
+# Logs
+*.log
+
+# Coverage/profiling/temp files
+*.coverprofile
+*.pprof
+tmp/
+*.tmp
