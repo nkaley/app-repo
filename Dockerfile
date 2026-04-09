@@ -1,17 +1,19 @@
-FROM golang:1.23-alpine AS builder
+FROM golang:1.24 AS builder
+WORKDIR /src
 
-WORKDIR /app
-
-COPY go.mod ./
+COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o myapp ./cmd/myapp
 
-FROM gcr.io/distroless/static-debian12:nonroot
+ARG VERSION=dev
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
+    go build -ldflags="-s -w -X main.buildVersion=${VERSION}" \
+    -o /out/myapp ./cmd/myapp
 
-WORKDIR /app
-COPY --from=builder /app/myapp /app/myapp
+FROM gcr.io/distroless/static-debian12
+WORKDIR /
+COPY --from=builder /out/myapp /myapp
 
 EXPOSE 8080
-ENTRYPOINT ["/app/myapp"]
+ENTRYPOINT ["/myapp"]

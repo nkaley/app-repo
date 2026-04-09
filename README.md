@@ -63,32 +63,6 @@ App: `http://localhost:8080`
 PostgreSQL: `localhost:5432`  
 Redis: `localhost:6379`
 
-## Kubernetes probes (recommended)
-
-```yaml
-livenessProbe:
-  httpGet:
-    path: /healthz
-    port: 8080
-  periodSeconds: 10
-  timeoutSeconds: 1
-
-readinessProbe:
-  httpGet:
-    path: /readyz
-    port: 8080
-  periodSeconds: 5
-  timeoutSeconds: 1
-
-startupProbe:
-  httpGet:
-    path: /readyz
-    port: 8080
-  failureThreshold: 30
-  periodSeconds: 2
-  timeoutSeconds: 1
-```
-
 ## Migrations strategy
 
 Current startup migration uses `CREATE TABLE IF NOT EXISTS`, which is safe for initial bootstrap.
