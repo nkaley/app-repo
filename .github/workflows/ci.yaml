@@ -11,13 +11,15 @@ permissions:
 
 env:
   IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/app-repo
+  OPS_REPO: nkaley/ops-repo
+  OPS_FILE: values/myapp/dev.yaml
 
 jobs:
-  test-and-push:
+  test-build-push-and-update-ops:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout app repo
         uses: actions/checkout@v4
 
       - name: Set up Go
@@ -53,3 +55,60 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             VERSION=${{ github.sha }}
+
+      - name: Compute image tag
+        id: vars
+        run: |
+          echo "short_sha=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+          echo "image_tag=sha-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout ops repo
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.OPS_REPO }}
+          token: ${{ secrets.OPS_REPO_TOKEN }}
+          path: ops-repo
+
+      - name: Update image tag in ops repo
+        working-directory: ops-repo
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          path = Path("${{ env.OPS_FILE }}")
+          text = path.read_text()
+
+          new_tag = "${{ steps.vars.outputs.image_tag }}"
+
+          pattern = r'(^image:\n(?:.*\n)*?^\s*tag:\s*")[^"]+(")'
+          replacement = r'\1' + new_tag + r'\2'
+
+          new_text, count = re.subn(pattern, replacement, text, flags=re.MULTILINE)
+          if count != 1:
+              raise SystemExit(f"Expected to replace exactly 1 image.tag, replaced {count}")
+
+          path.write_text(new_text)
+          print(f"Updated {path} to tag {new_tag}")
+          PY
+
+      - name: Show diff
+        working-directory: ops-repo
+        run: |
+          git diff -- ${{ env.OPS_FILE }}
+
+      - name: Commit and push ops repo
+        working-directory: ops-repo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add "${{ env.OPS_FILE }}"
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+
+          git commit -m "chore(myapp): bump image to ${{ steps.vars.outputs.image_tag }}"
+          git push

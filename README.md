@@ -1,15 +1,15 @@
 # myapp
 
-`myapp` is a small REST API service for a DevOps pet project stack.
+`myapp` - devops stack
 
 ## Features
 
 - `GET /healthz` for liveness
 - `GET /readyz` for strict readiness (`PostgreSQL SELECT 1` + `Redis PING`)
-- `GET /metrics` for Prometheus scraping
+- `GET /metrics` for prometheus scraping
 - `GET /version` for running app version
-- `POST /api/notes` creates a note in PostgreSQL
-- `GET /api/notes` lists notes with Redis cache
+- `POST /api/notes` creates a note in pgsql
+- `GET /api/notes` lists notes with redis cache
 - startup migration for `notes` table
 
 `/healthz` is intentionally process-only and does not check external dependencies.
@@ -17,7 +17,7 @@
 
 ## Configuration
 
-Copy `.env.example` and set real values.
+copy `.env.example` and set real values.
 
 Required:
 
@@ -65,5 +65,5 @@ Redis: `localhost:6379`
 
 ## Migrations strategy
 
-Current startup migration uses `CREATE TABLE IF NOT EXISTS`, which is safe for initial bootstrap.
-For schema evolution, move to a dedicated migration tool (for example `golang-migrate`) and run it as a separate Kubernetes init job.
+current startup migration uses `CREATE TABLE IF NOT EXISTS` which is safe for initial bootstrap.
+for schema evolution, move to a dedicated migration tool (for example `golang-migrate`) and run it as a separate Kubernetes init job.

@@ -1,8 +1,8 @@
 replicaCount: 1
 
 image:
-  repository: myapp
-  tag: "dev"
+  repository: ghcr.io/nkaley/app-repo
+  tag: "sha-92f4f57"
   pullPolicy: IfNotPresent
 
 service:
