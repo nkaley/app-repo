@@ -11,7 +11,7 @@ service:
   targetPort: 8080
 
 ingress:
-  enabled: false
+  enabled: true
   className: nginx
   host: myapp.local
   path: /
