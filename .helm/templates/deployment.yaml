@@ -35,7 +35,11 @@ spec:
               value: {{ .Values.env.SHUTDOWN_TIMEOUT | quote }}
 
             - name: DATABASE_URL
-              value: {{ .Values.env.DATABASE_URL | quote }}
+              valueFrom:
+                secretKeyRef:
+                  name: myapp-secrets
+                  key: DATABASE_URL
+            
             - name: DB_TIMEOUT
               value: {{ .Values.env.DB_TIMEOUT | quote }}
             - name: DB_MAX_CONNS
