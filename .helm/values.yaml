@@ -10,6 +10,10 @@ service:
   port: 80
   targetPort: 8080
 
+serviceAccount:
+  create: false
+  name: myapp
+
 ingress:
   enabled: true
   className: nginx
@@ -83,3 +87,4 @@ autoscaling:
       stabilizationWindowSeconds: 120
       percent: 50
       periodSeconds: 60
+
