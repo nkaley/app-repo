@@ -4,6 +4,8 @@ metadata:
   name: myapp
   labels:
     app: myapp
+  annotations:
+    reloader.stakater.com/auto: "true"
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
